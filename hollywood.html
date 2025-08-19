@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hollywood Game</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #111; color: #f5f5f5; text-align: center; padding: 40px; }
+    #masked { font-size: 2em; letter-spacing: 5px; margin: 20px 0; }
+    input { padding: 10px; font-size: 1em; }
+    button { padding: 10px 20px; font-size: 1em; margin-left: 10px; cursor: pointer; }
+    #lives { font-weight: bold; font-size: 1.2em; color: #ff5555; }
+    #message { margin-top: 20px; font-size: 1.2em; }
+  </style>
+</head>
+<body>
+  <h1>🎬 Hollywood Game 🎬</h1>
+  <div id="masked"></div>
+  <div>
+    <input id="guess" type="text" maxlength="20" placeholder="Guess a letter or movie" />
+    <button onclick="makeGuess()">Guess</button>
+  </div>
+  <p>Lives left: <span id="lives"></span></p>
+  <p id="message"></p>
+
+  <script>
+    const movies = [
+      "TENET",
+      "THE MATRIX",
+      "HERA PHERI",
+      "THE HURT LOCKER",
+      "INTERSTELLAR",
+      "INCEPTION",
+      "AVATAR"
+    ];
+
+    const vowels = ["A", "E", "I", "O", "U"];
+    let movie = movies[Math.floor(Math.random() * movies.length)].toUpperCase();
+    let guessed = [];
+    let lives = "HOLLYWOOD".split("");
+
+    function maskMovie() {
+      return movie.split("").map(ch => {
+        if (ch === " ") return "/";
+        if (vowels.includes(ch) || guessed.includes(ch)) return ch;
+        return "_";
+      }).join(" ");
+    }
+
+    function updateDisplay() {
+      document.getElementById("masked").textContent = maskMovie();
+      document.getElementById("lives").textContent = lives.join("");
+    }
+
+    function makeGuess() {
+      const input = document.getElementById("guess");
+      const guess = input.value.toUpperCase().trim();
+      input.value = "";
+
+      if (!guess) return;
+
+      if (guess.length > 1) {
+        if (guess === movie) {
+          document.getElementById("message").textContent = `🎉 Correct! The movie was ${movie}`;
+          document.getElementById("guess").disabled = true;
+        } else {
+          lives.pop();
+          document.getElementById("message").textContent = "❌ Wrong movie guess!";
+        }
+      } else {
+        if (guessed.includes(guess)) {
+          document.getElementById("message").textContent = "⚠️ Already guessed that letter.";
+          return;
+        }
+        guessed.push(guess);
+        if (!movie.includes(guess)) {
+          lives.pop();
+          document.getElementById("message").textContent = "❌ Wrong letter!";
+        } else {
+          document.getElementById("message").textContent = "✅ Good guess!";
+        }
+      }
+
+      if (!maskMovie().includes("_")) {
+        document.getElementById("message").textContent = `🎉 You got it! The movie was ${movie}`;
+        document.getElementById("guess").disabled = true;
+      }
+
+      if (lives.length === 0) {
+        document.getElementById("message").textContent = `💀 Game Over! The movie was ${movie}`;
+        document.getElementById("guess").disabled = true;
+      }
+
+      updateDisplay();
+    }
+
+    updateDisplay();
+  </script>
+</body>
+</html>
