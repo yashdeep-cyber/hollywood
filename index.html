@@ -1,121 +1,114 @@
-import random
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hollywood Movie Guessing Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+      padding: 20px;
+    }
+    #word {
+      font-size: 30px;
+      letter-spacing: 5px;
+    }
+    input {
+      padding: 8px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
 
-# Movie list with hints
-MOVIES = [
-    ("TENET", "Christopher Nolan's 2020 time-bending thriller"),
-    ("THE MATRIX", "1999 sci-fi action by the Wachowskis"),
-    ("INCEPTION", "Dream heist film by Christopher Nolan"),
-    ("INTERSTELLAR", "Space exploration epic starring Matthew McConaughey"),
-    ("AVATAR", "James Cameron's sci-fi set on Pandora"),
-    ("TITANIC", "1997 romance and disaster film"),
-    ("GLADIATOR", "2000 Ridley Scott historical epic"),
-    ("THE GODFATHER", "Classic mafia film"),
-    ("FORREST GUMP", "Life journey of a simple man"),
-    ("THE SHAWSHANK REDEMPTION", "Prison escape drama"),
-    ("JURASSIC PARK", "Dinosaurs brought back to life"),
-    ("THE DARK KNIGHT", "Batman vs Joker"),
-    ("THE HURT LOCKER", "Bomb disposal in Iraq"),
-    ("GRAVITY", "Astronauts stranded in space"),
-    ("THE REVENANT", "Bear attack and revenge"),
-    ("WHIPLASH", "Drumming and obsession"),
-    ("LA LA LAND", "Musical romance"),
-    ("MAD MAX FURY ROAD", "Post-apocalyptic car chases"),
-    ("THE AVENGERS", "Marvel superhero team-up"),
-    ("IRON MAN", "The first MCU film"),
-    ("BLACK PANTHER", "Wakanda forever"),
-    ("CAPTAIN AMERICA CIVIL WAR", "Heroes at odds"),
-    ("DOCTOR STRANGE", "Master of mystic arts"),
-    ("GUARDIANS OF THE GALAXY", "Misfit space heroes"),
-    ("SPIDER MAN", "Friendly neighborhood hero"),
-    ("THOR RAGNAROK", "Colorful cosmic adventure"),
-    ("ANT MAN", "Small hero big heart"),
-    ("LOGAN", "Wolverine's last story"),
-    ("DEADPOOL", "R-rated superhero comedy"),
-    ("VENOM", "Alien symbiote antihero"),
-    ("THE LION KING", "Animated Disney classic"),
-    ("FROZEN", "Let it go"),
-    ("TOY STORY", "Living toys"),
-    ("COCO", "Day of the Dead musical"),
-    ("SOUL", "Jazz and afterlife"),
-    ("FINDING NEMO", "Clownfish adventure"),
-    ("UP", "House with balloons"),
-    ("RATATOUILLE", "Cooking rat"),
-    ("WALL E", "Lonely robot"),
-    ("THE INCREDIBLES", "Superhero family"),
-    ("MONSTERS INC", "Monsters and kids"),
-    ("INSIDE OUT", "Emotions come alive"),
-    ("ZOOTOPIA", "Animal city"),
-    ("SHREK", "Ogre fairy tale"),
-    ("KUNG FU PANDA", "Martial arts bear"),
-    ("HOW TO TRAIN YOUR DRAGON", "Boy and dragon"),
-    ("MEGAMIND", "Supervillain comedy"),
-    ("THE LEGO MOVIE", "Everything is awesome"),
-    ("CARS", "Talking race cars"),
-]
+<h1>Hollywood Movie Guessing Game</h1>
+<div id="word"></div>
+<br>
+<input type="text" id="guess" maxlength="1" placeholder="Enter a letter">
+<button onclick="makeGuess()">Guess</button>
+<button onclick="nextMovie()">Next Movie</button>
 
-VOWELS = set("AEIOU")
+<div id="message"></div>
 
-def mask_movie(movie, guessed):
-    return "".join(
-        c if (c in VOWELS or c == " " or c in guessed) else "_"
-        for c in movie
-    ).replace(" ", "/")
+<script>
+  const movies = [
+    "THE MATRIX", "INCEPTION", "TITANIC", "GLADIATOR", "AVATAR", "JURASSIC PARK", "THE GODFATHER",
+    "FORREST GUMP", "THE DARK KNIGHT", "STAR WARS", "INTERSTELLAR", "THE SHAWSHANK REDEMPTION",
+    "FIGHT CLUB", "PULP FICTION", "THE LION KING", "BACK TO THE FUTURE", "THE AVENGERS", "IRON MAN",
+    "THOR", "BLACK PANTHER", "DOCTOR STRANGE", "CAPTAIN MARVEL", "GUARDIANS OF THE GALAXY",
+    "SPIDER MAN", "NO TIME TO DIE", "MISSION IMPOSSIBLE", "TOP GUN", "FROZEN", "THE INCREDIBLES",
+    "COCO", "TOY STORY", "FINDING NEMO", "MONSTERS INC", "RATATOUILLE", "UP", "WALL E", "SOUL",
+    "BRAVEHEART", "GOODFELLAS", "CASABLANCA", "KING KONG", "AVENGERS ENDGAME", "AVENGERS INFINITY WAR",
+    "SHREK", "KUNG FU PANDA", "MADAGASCAR", "ZOOTOPIA", "ALADDIN", "BEAUTY AND THE BEAST", "MULAN"
+  ];
 
-def play_game():
-    score = 0
-    round_num = 0
-    lives_word_template = list("HOLLYWOOD")
+  let selectedMovie = "";
+  let guessedLetters = [];
+  let displayWord = "";
 
-    while True:
-        movie, hint = random.choice(MOVIES)
-        guessed = set()
-        lives_word = lives_word_template.copy()
-        round_num += 1
+  function startGame() {
+    selectedMovie = movies[Math.floor(Math.random() * movies.length)];
+    guessedLetters = [];
+    updateDisplay();
+    document.getElementById("message").innerText = "";
+  }
 
-        print(f"\nRound {round_num} - Score: {score}")
-        print("Hint:", hint)
-        masked = mask_movie(movie, guessed)
-        print(masked)
-        print("Lives:", "".join(lives_word))
+  function updateDisplay() {
+    displayWord = selectedMovie.split("").map(letter => {
+      if (letter === " ") return "/";
+      return guessedLetters.includes(letter) ? letter : "_";
+    }).join(" ");
+    document.getElementById("word").innerText = displayWord;
+  }
 
-        while "_" in masked and lives_word:
-            guess = input("Guess a letter or the movie (or type 'quit'): ").upper().strip()
-            if guess == "QUIT":
-                print(f"Final score: {score}")
-                return
-            if len(guess) > 1:  # full movie guess
-                if guess == movie:
-                    print("✅ Correct! The movie was:", movie)
-                    score += 1
-                    break
-                else:
-                    print("❌ Wrong movie!")
-                    lives_word.pop()
-            else:
-                if guess in guessed:
-                    print("⚠️ Already guessed.")
-                    continue
-                guessed.add(guess)
-                if guess in movie:
-                    print("✅ Good guess!")
-                else:
-                    print("❌ Wrong letter!")
-                    lives_word.pop()
-            masked = mask_movie(movie, guessed)
-            print(masked)
-            print("Lives:", "".join(lives_word))
+  function makeGuess() {
+    const guessInput = document.getElementById("guess");
+    const guess = guessInput.value.toUpperCase();
+    guessInput.value = "";
 
-        if "_" not in masked:
-            print("🎉 You solved it!")
-            score += 1
-        elif not lives_word:
-            print("💀 Out of lives! The movie was:", movie)
+    if (!guess || guess.length !== 1 || !/[A-Z]/.test(guess)) {
+      document.getElementById("message").innerText = "Please enter a valid letter.";
+      return;
+    }
 
-        next_round = input("Press Enter for next movie or type 'quit' to end: ").lower()
-        if next_round == 'quit':
-            print(f"Final score: {score}")
-            break
+    if (guessedLetters.includes(guess)) {
+      document.getElementById("message").innerText = "You already guessed that letter.";
+      return;
+    }
 
-if __name__ == "__main__":
-    play_game()
+    guessedLetters.push(guess);
+
+    if (selectedMovie.includes(guess)) {
+      document.getElementById("message").innerText = "Good guess!";
+    } else {
+      document.getElementById("message").innerText = "Wrong guess!";
+    }
+
+    updateDisplay();
+
+    if (!displayWord.includes("_")) {
+      document.getElementById("message").innerText = "🎉 You guessed the movie!";
+    }
+  }
+
+  function nextMovie() {
+    startGame();
+  }
+
+  // Start the first game
+  startGame();
+</script>
+
+</body>
+</html>
 
